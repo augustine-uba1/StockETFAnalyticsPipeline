@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "uksouth"
+    },
+    "devRgName": {
+      "type": "string",
+      "defaultValue": "dev-analytics-finance"
+    },
+    "prodRgName": {
+      "type": "string",
+      "defaultValue": "prod-analytics-finance"
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {
+        "system": "analytics-finance",
+        "owner": "data-eng",
+        "costCenter": "fin-analytics"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-04-01",
+      "name": "[parameters('devRgName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]"
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-04-01",
+      "name": "[parameters('prodRgName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]"
+    }
+  ],
+  "outputs": {
+    "devRg": {
+      "type": "string",
+      "value": "[parameters('devRgName')]"
+    },
+    "prodRg": {
+      "type": "string",
+      "value": "[parameters('prodRgName')]"
+    }
+  }
+}

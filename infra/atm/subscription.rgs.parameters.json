@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location":   { "value": "uksouth" },
+    "devRgName":  { "value": "dev-analytics-finance" },
+    "prodRgName": { "value": "prod-analytics-finance" },
+    "tags": {
+      "value": {
+        "system": "analytics-finance",
+        "environment": "multi",
+        "owner": "data-eng"
+      }
+    }
+  }
+}
