@@ -33,6 +33,7 @@ stages:
   - job: WhatIfDev
     displayName: What-If Dev
     steps:
+    - checkout: self
     - task: AzureCLI@2
       displayName: Azure Login
       inputs:
@@ -54,6 +55,7 @@ stages:
   - job: Dev_WhatIf
     displayName: What-If Dev
     steps:
+    - checkout: self
     - task: AzureCLI@2
       displayName: Azure Login
       inputs:
@@ -72,6 +74,7 @@ stages:
     dependsOn: Dev_WhatIf
     condition: succeeded()
     steps:
+    - checkout: self
     - task: AzureCLI@2
       displayName: az deployment group create (Dev)
       inputs:
