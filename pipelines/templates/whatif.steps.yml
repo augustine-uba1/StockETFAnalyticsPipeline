@@ -5,7 +5,7 @@ parameters:
   paramsFile: ''
 
 steps:
-- script: |
+- bash: |
     set -euo pipefail
     RGNAME="${{ parameters.rgName }}"
     TEMPLATE="${{ parameters.templateFile }}"
@@ -34,7 +34,6 @@ steps:
   displayName: Run What-If + Delete Guard
   env:
     AZURE_CORE_ONLY_SHOW_ERRORS: 'True'
-  shell: bash
 
 - publish: whatif
   artifact: whatif-${{ parameters.rgName }}
