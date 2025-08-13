@@ -1,0 +1,46 @@
+ARM Resource Group Deployment 
+az deployment sub what-if --location uksouth --template-file infra/arm/subscription.rgs.json --parameters @infra/arm/subscription.rgs.parameters.json
+
+az deployment sub create  --name sub-create-rgs --location uksouth --template-file infra/arm/subscription.rgs.json --parameters @infra/arm/subscription.rgs.parameters.json
+
+ARM Resources Deployment
+az deployment group what-if --resource-group dev-analytics-finance --template-file infra/arm/rgs.resources.json --parameters @infra/arm/rgs.resources.parameters.dev.json --result-format FullResourcePayloads
+az deployment group what-if --resource-group dev-analytics-finance --template-file infra/arm/rgs.resources.json --parameters @infra/arm/rgs.resources.parameters.prod.json --result-format FullResourcePayloads
+
+az deployment group create --name deploy-analytics-dev --resource-group dev-analytics-finance --template-file infra/arm/rgs.resources.json --parameters @infra/arm/rgs.resources.parameters.dev.json
+az deployment group create --name deploy-analytics-dev --resource-group dev-analytics-finance --template-file infra/arm/rgs.resources.json --parameters @infra/arm/rgs.resources.parameters.prod.json
+
+
+CREATE SECURITY GROUPS
+# Dev SQL Admin group
+az ad group create --display-name "sql-admins-analytics-dev" --mail-nickname "sql-admins-analytics-dev"
+
+# Prod SQL Admin group
+az ad group create --display-name "sql-admins-analytics-prod" --mail-nickname "sql-admins-analytics-prod"
+
+SHOW GROUP ID
+az ad group show --group "sql-admins-analytics-dev" --query id -o tsv
+# 01fe83e2-3c3e-41fe-887a-1b7b2e9cffba
+
+az ad group show --group "sql-admins-analytics-prod" --query id -o tsv
+# 652028f8-91d4-4cfb-bfae-88f99ab33cc2
+
+SET user ID TO A variable
+$MY_OBJID=$(az ad user show --id "augustine_ubanzemeka_yahoo.com#EXT#@augustineubanzemekayahoo.onmicrosoft.com" --query id -o tsv)
+
+# Add to Dev group
+az ad group member add --group "sql-admins-analytics-dev" --member-id $MY_OBJID
+
+# Add to Prod group
+az ad group member add --group "sql-admins-analytics-prod" --member-id $MY_OBJID
+
+# Tenant
+TENANT_ID=$(az account show --query tenantId -o tsv)
+
+# Group objectIds
+DEV_GROUP_OBJECT_ID=$(az ad group show --group "sql-admins-analytics-dev" --query id -o tsv)
+PRD_GROUP_OBJECT_ID=$(az ad group show --group "sql-admins-analytics-prod" --query id -o tsv)
+
+# Key Vault resource IDs
+az keyvault show -g dev-analytics-finance  -n <DEV_KV_NAME>  --query id -o tsv
+az keyvault show -g prod-analytics-finance -n <PROD_KV_NAME> --query id -o tsv

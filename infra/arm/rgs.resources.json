@@ -1,0 +1,92 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": { "type": "string" },
+    "env": { "type": "string" },
+    "tags": { "type": "object" },
+    "sqlAdminLogin": {
+      "type": "string",
+      "defaultValue": "sqladminuser"
+    },
+    "sqlAdminPassword": { "type": "secureString" },
+    "aadAdminLogin": { "type": "string" }, // group display name (e.g., "sql-admins-analytics-dev")
+    "aadAdminObjectId": { "type": "string" }, // group objectId GUID
+    "aadTenantId": { "type": "secureString" } // your tenant GUID
+
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[concat('sta', parameters('env'), uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
+      "sku": { "name": "Standard_LRS" },
+      "kind": "StorageV2",
+      "properties": {
+        "isHnsEnabled": true
+      },
+      "tags": "[parameters('tags')]"
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2024-05-01-preview",
+      "name": "[concat('sql', parameters('env'), uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "administratorLogin": "[parameters('sqlAdminLogin')]",
+        "administratorLoginPassword": "[parameters('sqlAdminPassword')]"
+      },
+      "tags": "[parameters('tags')]"
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2024-05-01-preview",
+      "name": "[concat(concat('sql', parameters('env'), uniqueString(resourceGroup().id)), '/sqldbFinance')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sampleName": "AdventureWorksLT"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', concat('sql', parameters('env'), uniqueString(resourceGroup().id)))]"
+      ],
+      "tags": "[parameters('tags')]"
+    },
+    {
+      "type": "Microsoft.Sql/servers/administrators",
+      "apiVersion": "2024-05-01-preview",
+      "name": "[concat(concat('sql', parameters('env'), uniqueString(resourceGroup().id)), '/ActiveDirectory')]",
+      "properties": {
+        "administratorType": "ActiveDirectory",
+        "login":   "[parameters('aadAdminLogin')]",     // group display name (helpful in portal)
+        "sid":     "[parameters('aadAdminObjectId')]",  // group objectId (actual binding)
+        "tenantId":"[parameters('aadTenantId')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', concat('sql', parameters('env'), uniqueString(resourceGroup().id)))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DataFactory/factories",
+      "apiVersion": "2018-06-01",
+      "name": "[concat('adf', parameters('env'), uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
+      "properties": {},
+      "tags": "[parameters('tags')]"
+    },
+    {
+      "type": "Microsoft.Databricks/workspaces",
+      "apiVersion": "2023-02-01",
+      "name": "[concat('dbx', parameters('env'), uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
+      "sku": { "name": "premium" },
+      "properties": {
+        "managedResourceGroupId": "[concat(subscription().id, '/resourceGroups/', concat('dbx-mrg-', parameters('env'), '-', uniqueString(resourceGroup().id)))]",
+        "parameters": {
+          "enableNoPublicIp": { "value": false }
+        }
+      },
+      "tags": "[parameters('tags')]"
+    }
+  ]
+}

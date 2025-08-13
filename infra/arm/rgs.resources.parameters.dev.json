@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "uksouth"
+    },
+    "env": {
+      "value": "dev"
+    },
+    "tags": {
+      "value": {
+        "system": "analytics-finance",
+        "environment": "dev",
+        "owner": "data-eng"
+      }
+    },
+    "sqlAdminLogin": {
+      "value": "sqladminuser"
+    },
+    "sqlAdminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/ec769a23-6a4e-49a1-a74c-2967d09a7742/resourceGroups/data-pipeline-cicd-rg/providers/Microsoft.KeyVault/vaults/keyvaultAzure12550"
+        },
+        "secretName": "SQL-ADMIN-PASSWORD"
+      }
+    },
+    "aadAdminLogin": {
+      "value": "sql-admins-analytics-dev"
+    },
+    "aadAdminObjectId": {
+      "value": "01fe83e2-3c3e-41fe-887a-1b7b2e9cffba"
+    },
+    "aadTenantId": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/ec769a23-6a4e-49a1-a74c-2967d09a7742/resourceGroups/data-pipeline-cicd-rg/providers/Microsoft.KeyVault/vaults/keyvaultAzure12550"
+        },
+        "secretName": "TENANT-ID"
+      }
+    }
+  }
+}
