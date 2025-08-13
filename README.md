@@ -53,3 +53,5 @@ Set default tickers in `adf/pipelines/ingest_prices.json` parameter `tickers` (c
 ## Next Steps
 - Add ETF holdings ingestion (e.g., SPY/QQQ holdings) into bronze -> silver -> gold.
 - Add Power BI pbix and CI for semantic model.
+
+[![Build Status](https://dev.azure.com/augustineubanzemeka/FinApp/_apis/build/status%2Faugustine-uba1.StockETFAnalyticsPipeline?branchName=main)](https://dev.azure.com/augustineubanzemeka/FinApp/_build/latest?definitionId=45&branchName=main)
