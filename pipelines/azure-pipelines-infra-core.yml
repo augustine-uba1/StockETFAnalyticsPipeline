@@ -40,7 +40,7 @@ stages:
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: echo "Logged in."
-    - template: pipelines/templates/whatif.steps.yml
+    - template: templates/whatif.steps.yml
       parameters:
         rgName: $(devRg)
         templateFile: $(templateFile)
@@ -61,7 +61,7 @@ stages:
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: echo "Logged in."
-    - template: pipelines/templates/whatif.steps.yml
+    - template: templates/whatif.steps.yml
       parameters:
         rgName: $(devRg)
         templateFile: $(templateFile)
@@ -107,7 +107,7 @@ stages:
               scriptLocation: inlineScript
               inlineScript: echo "Logged in."
 
-          - template: pipelines/templates/whatif.steps.yml
+          - template: templates/whatif.steps.yml
             parameters:
               rgName: $(prodRg)
               templateFile: $(templateFile)
