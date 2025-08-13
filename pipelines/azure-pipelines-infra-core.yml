@@ -1,112 +1,113 @@
 # Triggers
 trigger:
-  branches: { include: [ main ] }
-  paths:    { include: [ 'infra/arm/**', 'pipelines/**' ] }
+  branches: { include: [main] }
+  paths: { include: ["infra/arm/**", "pipelines/**"] }
 
 pr:
-  branches: { include: [ '*' ] }
-  paths:    { include: [ 'infra/arm/**', 'pipelines/**' ] }
+  branches: { include: ["*"] }
+  paths: { include: ["infra/arm/**", "pipelines/**"] }
 
 pool:
   vmImage: ubuntu-latest
 
 # ========= CONFIG =========
 variables:
-  azureSubscription: 'ServiceConnectionDevProd'
+  azureSubscription: "ServiceConnectionDevProd"
 
-  templateFile:     'infra/arm/rgs.resources.json'
-  devParamsFile:    'infra/arm/rgs.resources.parameters.dev.json'
-  prodParamsFile:   'infra/arm/rgs.resources.parameters.prod.json'
+  templateFile: "infra/arm/rgs.resources.json"
+  devParamsFile: "infra/arm/rgs.resources.parameters.dev.json"
+  prodParamsFile: "infra/arm/rgs.resources.parameters.prod.json"
 
-  devRg:  'dev-analytics-finance'
-  prodRg: 'prod-analytics-finance'
-  location: 'uksouth'
+  devRg: "dev-analytics-finance"
+  prodRg: "prod-analytics-finance"
+  location: "uksouth"
 
 # ========= STAGES =========
 
 # --- PR VALIDATION: WHAT-IF (DEV) ONLY ---
 stages:
-- stage: PR_WhatIf_Dev
-  displayName: PR What-If (Dev only)
-  condition: eq(variables['Build.Reason'], 'PullRequest')   # still runs on PR validation
-  jobs:
-  - job: WhatIfDev
-    displayName: What-If Dev
-    steps:
-    - checkout: self
-    - template: templates/whatif.steps.yml
-      parameters:
-        azureSubscription: $(azureSubscription)
-        rgName: $(devRg)
-        templateFile: $(templateFile)
-        paramsFile: $(devParamsFile)
-
-# --- MAIN: WHAT-IF (DEV) THEN DEPLOY (DEV) ---
-- stage: Main_Dev
-  displayName: Main → What-If + Deploy (Dev)
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-  jobs:
-  - job: Dev_WhatIf
-    displayName: What-If Dev
-    steps:
-    - checkout: self
-    - template: templates/whatif.steps.yml
-      parameters:
-        azureSubscription: $(azureSubscription)
-        rgName: $(devRg)
-        templateFile: $(templateFile)
-        paramsFile: $(devParamsFile)
-
-  - job: Dev_Deploy
-    displayName: Deploy Dev (Create)
-    dependsOn: Dev_WhatIf
-    condition: succeeded()
-    steps:
-    - checkout: self
-    - task: AzureCLI@2
-      displayName: az deployment group create (Dev)
-      inputs:
-        azureSubscription: '$(azureSubscription)'
-        scriptType: bash
-        scriptLocation: inlineScript
-        inlineScript: |
-          set -euo pipefail
-          az deployment group create \
-            --name deploy-analytics-dev-$(Build.BuildId) \
-            --resource-group "$(devRg)" \
-            --template-file "$(templateFile)" \
-            --parameters @"$(devParamsFile)"
-
-# --- PROD: WHAT-IF + DEPLOY behind manual approval (Environment) ---
-- stage: Prod
-  displayName: Prod What-If + Deploy
-  dependsOn: Main_Dev
-  condition: succeeded()
-  jobs:
-  - deployment: Prod_Gated
-    displayName: Prod (Approval → What-If → Deploy)
-    environment: 'prod-infra'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
+  - stage: PR_WhatIf_Dev
+    displayName: PR What-If (Dev only)
+    condition: eq(variables['Build.Reason'], 'PullRequest') # still runs on PR validation
+    jobs:
+      - job: WhatIfDev
+        displayName: What-If Dev
+        steps:
           - checkout: self
           - template: templates/whatif.steps.yml
             parameters:
-              rgName: $(prodRg)
+              azureSubscription: $(azureSubscription)
+              rgName: $(devRg)
               templateFile: $(templateFile)
-              paramsFile: $(prodParamsFile)
+              paramsFile: $(devParamsFile)
 
+  # --- MAIN: WHAT-IF (DEV) THEN DEPLOY (DEV) ---
+  - stage: Main_Dev
+    displayName: Main → What-If + Deploy (Dev)
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    jobs:
+      - job: Dev_WhatIf
+        displayName: What-If Dev
+        steps:
+          - checkout: self
+          - template: templates/whatif.steps.yml
+            parameters:
+              azureSubscription: $(azureSubscription)
+              rgName: $(devRg)
+              templateFile: $(templateFile)
+              paramsFile: $(devParamsFile)
+
+      - job: Dev_Deploy
+        displayName: Deploy Dev (Create)
+        dependsOn: Dev_WhatIf
+        condition: succeeded()
+        steps:
+          - checkout: self
           - task: AzureCLI@2
-            displayName: az deployment group create (Prod)
+            displayName: az deployment group create (Dev)
             inputs:
-              azureSubscription: '$(azureSubscription)'
+              azureSubscription: "$(azureSubscription)"
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
                 set -euo pipefail
                 az deployment group create \
-                  --name deploy-analytics-prod-$(Build.BuildId) \
-                  --resource-group "$(prodRg)" \
+                  --name deploy-analytics-dev-$(Build.BuildId) \
+                  --resource-group "$(devRg)" \
                   --template-file "$(templateFile)" \
-                  --parameters @"$(prodParamsFile)"
+                  --parameters @"$(devParamsFile)"
+
+  # --- PROD: WHAT-IF + DEPLOY behind manual approval (Environment) ---
+  - stage: Prod
+    displayName: Prod What-If + Deploy
+    dependsOn: Main_Dev
+    condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+      in(dependencies.Main_Dev.result, 'Succeeded'))
+    jobs:
+      - deployment: Prod_Gated
+        displayName: Prod (Approval → What-If → Deploy)
+        environment: "prod-infra"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - template: templates/whatif.steps.yml
+                  parameters:
+                    rgName: $(prodRg)
+                    templateFile: $(templateFile)
+                    paramsFile: $(prodParamsFile)
+
+                - task: AzureCLI@2
+                  displayName: az deployment group create (Prod)
+                  inputs:
+                    azureSubscription: "$(azureSubscription)"
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      set -euo pipefail
+                      az deployment group create \
+                        --name deploy-analytics-prod-$(Build.BuildId) \
+                        --resource-group "$(prodRg)" \
+                        --template-file "$(templateFile)" \
+                        --parameters @"$(prodParamsFile)"
