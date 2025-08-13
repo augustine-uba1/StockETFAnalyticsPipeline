@@ -7,7 +7,7 @@ parameters:
 
 steps:
 - task: AzureCLI@2
-  displayName: Azure Login
+  displayName: What-If + Delete Guard (${{ parameters.rgName }})
   inputs:
     azureSubscription: ${{ parameters.azureSubscription }}
     scriptType: bash
@@ -38,9 +38,6 @@ steps:
       fi
 
       echo "✅ What-If passed: no Delete actions detected."
-    displayName: Run What-If + Delete Guard
-    env:
-      AZURE_CORE_ONLY_SHOW_ERRORS: 'True'
 
 - publish: whatif
   artifact: whatif-${{ parameters.rgName }}

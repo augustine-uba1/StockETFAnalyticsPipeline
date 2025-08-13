@@ -34,15 +34,9 @@ stages:
     displayName: What-If Dev
     steps:
     - checkout: self
-    - task: AzureCLI@2
-      displayName: Azure Login
-      inputs:
-        azureSubscription: '$(azureSubscription)'
-        scriptType: bash
-        scriptLocation: inlineScript
-        inlineScript: echo "Logged in."
     - template: templates/whatif.steps.yml
       parameters:
+        azureSubscription: $(azureSubscription)
         rgName: $(devRg)
         templateFile: $(templateFile)
         paramsFile: $(devParamsFile)
@@ -56,15 +50,9 @@ stages:
     displayName: What-If Dev
     steps:
     - checkout: self
-    - task: AzureCLI@2
-      displayName: Azure Login
-      inputs:
-        azureSubscription: '$(azureSubscription)'
-        scriptType: bash
-        scriptLocation: inlineScript
-        inlineScript: echo "Logged in."
     - template: templates/whatif.steps.yml
       parameters:
+        azureSubscription: $(azureSubscription)
         rgName: $(devRg)
         templateFile: $(templateFile)
         paramsFile: $(devParamsFile)
@@ -102,14 +90,7 @@ stages:
       runOnce:
         deploy:
           steps:
-          - task: AzureCLI@2
-            displayName: Azure Login
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: echo "Logged in."
-
+          - checkout: self
           - template: templates/whatif.steps.yml
             parameters:
               rgName: $(prodRg)
