@@ -3,38 +3,41 @@ parameters:
   rgName: ''
   templateFile: ''
   paramsFile: ''
+  azureSubscription: 'ServiceConnectionDevProd'
 
 steps:
-- script: |
-    set -euo pipefail
-    RGNAME="${{ parameters.rgName }}"
-    TEMPLATE="${{ parameters.templateFile }}"
-    PARAMS="${{ parameters.paramsFile }}"
+- task: AzureCLI@2
+  displayName: What-If + Delete Guard (${{ parameters.rgName }})
+  inputs:
+    azureSubscription: ${{ parameters.azureSubscription }}
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      set -euo pipefail
+      RGNAME="${{ parameters.rgName }}"
+      TEMPLATE="${{ parameters.templateFile }}"
+      PARAMS="${{ parameters.paramsFile }}"
 
-    echo "Running WHAT-IF for RG: $RGNAME"
-    mkdir -p whatif
+      echo "Running WHAT-IF for RG: $RGNAME"
+      mkdir -p whatif
 
-    az deployment group what-if \
-      --resource-group "$RGNAME" \
-      --template-file "$TEMPLATE" \
-      --parameters @"$PARAMS" \
-      --result-format FullResourcePayloads \
-      --output json > "whatif/${RGNAME}.json"
+      az deployment group what-if \
+        --resource-group "$RGNAME" \
+        --template-file "$TEMPLATE" \
+        --parameters @"$PARAMS" \
+        --result-format FullResourcePayloads \
+        --output json > "whatif/${RGNAME}.json"
 
-    echo "What-If written to whatif/${RGNAME}.json"
+      echo "What-If written to whatif/${RGNAME}.json"
 
-    # Fail the build if there are any 'Delete' actions
-    if jq -e '.changes[]? | select(.changeType=="Delete")' "whatif/${RGNAME}.json" >/dev/null; then
-      echo "❌ What-If detected DELETE actions in $RGNAME. Failing the job."
-      jq '.changes[] | select(.changeType=="Delete") | {resourceId:.resourceId, changeType:.changeType}' "whatif/${RGNAME}.json"
-      exit 16
-    fi
+      # Fail the build if there are any 'Delete' actions
+      if jq -e '.changes[]? | select(.changeType=="Delete")' "whatif/${RGNAME}.json" >/dev/null; then
+        echo "❌ What-If detected DELETE actions in $RGNAME. Failing the job."
+        jq '.changes[] | select(.changeType=="Delete") | {resourceId:.resourceId, changeType:.changeType}' "whatif/${RGNAME}.json"
+        exit 16
+      fi
 
-    echo "✅ What-If passed: no Delete actions detected."
-  displayName: Run What-If + Delete Guard
-  env:
-    AZURE_CORE_ONLY_SHOW_ERRORS: 'True'
-  shell: bash
+      echo "✅ What-If passed: no Delete actions detected."
 
 - publish: whatif
   artifact: whatif-${{ parameters.rgName }}
