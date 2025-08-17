@@ -22,6 +22,14 @@ variables:
   prodRg: "prod-analytics-finance"
   location: "uksouth"
 
+  # SQL Server and Database names
+  devSqlServerFqdn: "sqldevm77kkznmognla.database.windows.net"
+  devSqlDb: "sqldbFinance"
+
+  prodSqlServerFqdn: "sqlprodpob5am325bfto.database.windows.net"
+  prodSqlDb: "sqldbFinance"
+  sqlFile: "infra/sql/01_create_stg_prices_raw.sql"
+
 # ========= STAGES =========
 
 # --- PR VALIDATION: WHAT-IF (DEV) ONLY ---
@@ -77,6 +85,20 @@ stages:
                   --template-file "$(templateFile)" \
                   --parameters @"$(devParamsFile)"
 
+      - job: Dev_DB_Schema
+        displayName: "Prepare DB schema (Dev)"
+        dependsOn: Dev_Deploy
+        condition: succeeded()
+        steps:
+          - checkout: self
+          - template: templates/sql.run.steps.yml
+            parameters:
+              azureSubscription: $(azureSubscription)
+              serverFqdn: $(devSqlServerFqdn)
+              database: $(devSqlDb)
+              sqlFile: $(sqlFile)
+
+
   # --- PROD: WHAT-IF + DEPLOY behind manual approval (Environment) ---
   - stage: Prod
     displayName: Prod What-If + Deploy
@@ -111,3 +133,20 @@ stages:
                         --resource-group "$(prodRg)" \
                         --template-file "$(templateFile)" \
                         --parameters @"$(prodParamsFile)"
+
+      - deployment: Prod_DB_Schema
+        displayName: "Prepare DB schema (Prod)"
+        environment: "prod-infra"
+        dependsOn: Prod_Gated
+        condition: succeeded()
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - template: templates/sql.run.steps.yml
+                  parameters:
+                    azureSubscription: $(azureSubscription)
+                    serverFqdn: $(prodSqlServerFqdn)
+                    database: $(prodSqlDb)
+                    sqlFile: $(sqlFile)

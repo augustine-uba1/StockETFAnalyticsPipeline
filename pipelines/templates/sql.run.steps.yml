@@ -1,0 +1,30 @@
+# pipelines/templates/sql.run.steps.yml
+parameters:
+  azureSubscription: ''
+  serverFqdn: ''
+  database: ''
+  sqlFile: ''
+
+steps:
+  - task: AzurePowerShell@5
+    displayName: "Run SQL: ${{ parameters.sqlFile }}"
+    inputs:
+      azureSubscription: ${{ parameters.azureSubscription }}
+      azurePowerShellVersion: LatestVersion
+      ScriptType: InlineScript
+      Inline: |
+        $ErrorActionPreference = "Stop"
+        Install-Module SqlServer -Force -Scope CurrentUser | Out-Null
+
+        $token = (Get-AzAccessToken -ResourceUrl "https://database.windows.net").Token
+
+        $sqlPath = "$(Build.SourcesDirectory)/${{ parameters.sqlFile }}"
+        if (-not (Test-Path $sqlPath)) { throw "SQL file not found: $sqlPath" }
+        $sql = Get-Content $sqlPath -Raw
+
+        Write-Host "Executing against ${{ parameters.serverFqdn }} / ${{ parameters.database }}"
+        Invoke-Sqlcmd `
+          -ServerInstance "${{ parameters.serverFqdn }}" `
+          -Database "${{ parameters.database }}" `
+          -AccessToken $token `
+          -Query $sql
