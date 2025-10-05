@@ -54,6 +54,57 @@ This repo contains an end‑to‑end starter for the Stock &amp; ETF Analytics P
 7. Run `pipelines/azure-pipelines-etl.yml` to import notebooks, create a Key Vault–backed secret scope in Databricks, and trigger the job.
 8. (Optional) Connect Power BI to the Databricks SQL Warehouse and build visuals.
 
+
+## What the infra template deploys
+`infra/arm/rgs.resources.json` (parameters: infra/arm/rgs.resources.parameters.<env>.json)
+- Storage (StorageV2, HNS enabled)
+- SQL Server + Database
+   - Server AAD admin = your AAD group (e.g., sql-admins-analytics-dev)
+   - Database = Serverless (General Purpose / Gen5) with:
+   - Max vCores 2, Min vCores 0.5
+   - Auto-pause 60 min
+   - Backup redundancy: LRS
+
+- Azure Data Factory
+- Azure Databricks workspace (default/managed VNet)
+
+**Cost tip**: A Databricks workspace with a managed VNet may create a NAT Gateway in a managed RG (Databricks-owned). If you aren’t using Databricks yet, delete the workspace to stop that cost and recreate later with your preferred networking.
+
+## Pipeline (CI/CD)
+**Primary pipeline:** `pipelines/azure-pipelines-infra-core.yml`
+Templates:
+- `pipelines/templates/whatif.steps.yml`
+- `pipelines/templates/sql.run.steps.yml`
+
+**Triggers**
+- PRs (any branch) that change `infra/arm/**` or `pipelines/**` → run Dev What-If only
+- Push to `main` (same paths) → run Dev What-If → Dev Deploy → Prod (gated)
+
+**Stages**
+1. PR_WhatIf_Dev
+- Runs az deployment group what-if on dev
+- Validates JSON and fails on Deletes (delete guard)
+- Publishes whatif/dev-analytics-finance.json as a pipeline artifact
+
+2. Main_Dev (on `main`)
+- Dev_WhatIf → same guard + artifact
+- Dev_Deploy → applies ARM to Dev (`az deployment group create`)
+- Dev_DB_Schema → runs `infra/sql/01_create_stg_prices_raw.sql` against Dev using AAD token auth
+
+3. Prod (on `main`, after Main_Dev Succeeded)
+- Prod_Gated (Environment `prod-infra`) → approval → Prod What-If (guard + artifact) → Prod Deploy
+- Prod_DB_Schema → runs the same SQL against Prod
+
+**Artifacts**
+What-If outputs are stored under whatif/ and published so reviewers can download them from the run’s Summary → Artifacts.
+
+## SQL authentication & authorization
+**Server AAD admin (group)**
+ARM sets the SQL Server’s AAD admin to:
+- Dev: sql-admins-analytics-dev
+- Prod: sql-admins-analytics-prod
+Members of that group can log in with AAD and administer DBs on that server. In my dev I have added my service principal for my service connection as part of both groups, which allows it to run DDL/DML. However, an approach of `least priviledge` is advised for production environments. 
+
 ## Key Vault Integration
 - ADF uses an **AzureKeyVault** linked service to resolve `@Microsoft.KeyVault()` references in other linked services.
 - Databricks uses a **Key Vault–backed secret scope** named `kv-secrets`. We map secret names 1:1 (e.g., `ALPHAVANTAGE_API_KEY`).
