@@ -29,17 +29,83 @@ graph LR
 # StockETFAnalyticsPipeline
 This repo contains an end‑to‑end starter for the Stock &amp; ETF Analytics Platform with Azure Key Vault for secrets, ARM-based IaC, ADF ingestion, Databricks (Unity Catalog) transforms, and DevOps CI/CD.
 
+
+
+## Prerequisites
+
+- Azure subscription with permission to assign RBAC on the target RGs
+- Azure DevOps project connected to this GitHub repo
+- Resource groups:
+  - `dev-analytics-finance`
+  - `prod-analytics-finance`
+- (Recommended) AAD groups:
+  - `sql-admins-analytics-dev`
+  - `sql-admins-analytics-prod`
+
+## Quick Start
+
 ## Quick Start/ToDo
 1. Fork/clone this repo. Create an Azure DevOps project and connect to your GitHub repo.
-2. Create a Service Connection to your Azure subscription (ARM service connection). Grant it *Owner* at the RG scope for initial setup.
+2. Create a Service Connection (**_ServiceConnectionDevProd_** to match example pipeline) to your Azure subscription (ARM service connection). Grant it *Owner* at the RG scope for initial setup.
 3. Edit `/infra/arm/parameters.dev.json` to set names/region.
-4. In Azure DevOps, run `pipelines/azure-pipelines-infra.yml` (it will create the RG, Key Vault, Storage, SQL, ADF, and Databricks).
+4. In Azure DevOps, run `pipelines/azure-pipelines-infra.yml` (it will create the RG, Storage, SQL, ADF, and Databricks).
 5. Put secrets into Key Vault **after** deployment:
    - `ALPHAVANTAGE_API_KEY` = your API key
    - `SQL_ADMIN_PASSWORD` = the SQL admin password you set in parameters
 6. In ADF, publish the provided linked services/datasets/pipeline (the ETL pipeline also has a step to ARM-deploy them).
 7. Run `pipelines/azure-pipelines-etl.yml` to import notebooks, create a Key Vault–backed secret scope in Databricks, and trigger the job.
 8. (Optional) Connect Power BI to the Databricks SQL Warehouse and build visuals.
+
+
+## What the infra template deploys
+`infra/arm/rgs.resources.json` (parameters: infra/arm/rgs.resources.parameters.<env>.json)
+- Storage (StorageV2, HNS enabled)
+- SQL Server + Database
+   - Server AAD admin = your AAD group (e.g., sql-admins-analytics-dev)
+   - Database = Serverless (General Purpose / Gen5) with:
+   - Max vCores 2, Min vCores 0.5
+   - Auto-pause 60 min
+   - Backup redundancy: LRS
+
+- Azure Data Factory
+- Azure Databricks workspace (default/managed VNet)
+
+**Cost tip**: A Databricks workspace with a managed VNet may create a NAT Gateway in a managed RG (Databricks-owned). If you aren’t using Databricks yet, delete the workspace to stop that cost and recreate later with your preferred networking.
+
+## Pipeline (CI/CD)
+**Primary pipeline:** `pipelines/azure-pipelines-infra-core.yml`
+Templates:
+- `pipelines/templates/whatif.steps.yml`
+- `pipelines/templates/sql.run.steps.yml`
+
+**Triggers**
+- PRs (any branch) that change `infra/arm/**` or `pipelines/**` → run Dev What-If only
+- Push to `main` (same paths) → run Dev What-If → Dev Deploy → Prod (gated)
+
+**Stages**
+1. PR_WhatIf_Dev
+- Runs az deployment group what-if on dev
+- Validates JSON and fails on Deletes (delete guard)
+- Publishes whatif/dev-analytics-finance.json as a pipeline artifact
+
+2. Main_Dev (on `main`)
+- Dev_WhatIf → same guard + artifact
+- Dev_Deploy → applies ARM to Dev (`az deployment group create`)
+- Dev_DB_Schema → runs `infra/sql/01_create_stg_prices_raw.sql` against Dev using AAD token auth
+
+3. Prod (on `main`, after Main_Dev Succeeded)
+- Prod_Gated (Environment `prod-infra`) → approval → Prod What-If (guard + artifact) → Prod Deploy
+- Prod_DB_Schema → runs the same SQL against Prod
+
+**Artifacts**
+What-If outputs are stored under whatif/ and published so reviewers can download them from the run’s Summary → Artifacts.
+
+## SQL authentication & authorization
+**Server AAD admin (group)**
+ARM sets the SQL Server’s AAD admin to:
+- Dev: sql-admins-analytics-dev
+- Prod: sql-admins-analytics-prod
+Members of that group can log in with AAD and administer DBs on that server. In my dev I have added my service principal for my service connection as part of both groups, which allows it to run DDL/DML. However, an approach of `least priviledge` is advised for production environments. 
 
 ## Key Vault Integration
 - ADF uses an **AzureKeyVault** linked service to resolve `@Microsoft.KeyVault()` references in other linked services.
