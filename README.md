@@ -27,11 +27,26 @@ graph LR
 # StockETFAnalyticsPipeline
 This repo contains an end‑to‑end starter for the Stock &amp; ETF Analytics Platform with Azure Key Vault for secrets, ARM-based IaC, ADF ingestion, Databricks (Unity Catalog) transforms, and DevOps CI/CD.
 
+
+
+## Prerequisites
+
+- Azure subscription with permission to assign RBAC on the target RGs
+- Azure DevOps project connected to this GitHub repo
+- Resource groups:
+  - `dev-analytics-finance`
+  - `prod-analytics-finance`
+- (Recommended) AAD groups:
+  - `sql-admins-analytics-dev`
+  - `sql-admins-analytics-prod`
+
+## Quick Start
+
 ## Quick Start/ToDo
 1. Fork/clone this repo. Create an Azure DevOps project and connect to your GitHub repo.
-2. Create a Service Connection to your Azure subscription (ARM service connection). Grant it *Owner* at the RG scope for initial setup.
+2. Create a Service Connection (**_ServiceConnectionDevProd_** to match example pipeline) to your Azure subscription (ARM service connection). Grant it *Owner* at the RG scope for initial setup.
 3. Edit `/infra/arm/parameters.dev.json` to set names/region.
-4. In Azure DevOps, run `pipelines/azure-pipelines-infra.yml` (it will create the RG, Key Vault, Storage, SQL, ADF, and Databricks).
+4. In Azure DevOps, run `pipelines/azure-pipelines-infra.yml` (it will create the RG, Storage, SQL, ADF, and Databricks).
 5. Put secrets into Key Vault **after** deployment:
    - `ALPHAVANTAGE_API_KEY` = your API key
    - `SQL_ADMIN_PASSWORD` = the SQL admin password you set in parameters
