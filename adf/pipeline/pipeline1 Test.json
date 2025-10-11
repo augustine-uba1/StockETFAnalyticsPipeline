@@ -16,10 +16,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"method": "GET",
-					"url": "https://keyvaultazure12550.vault.azure.net/",
+					"url": "https://keyvaultazure12550.vault.azure.net/secrets/alpha-vantage-api-token/33db193ee5ed4ee7a9e5e0fb79a30001",
 					"authentication": {
 						"type": "MSI",
-						"resource": "https://vault.azure.net"
+						"resource": "https://vault.azure.net/"
 					}
 				}
 			},
@@ -41,7 +41,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "api_key",
-					"value": ""
+					"value": {
+						"value": "@activity('get_api_key').output",
+						"type": "Expression"
+					}
 				}
 			}
 		],
