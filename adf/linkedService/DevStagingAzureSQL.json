@@ -1,0 +1,14 @@
+{
+	"name": "DevStagingAzureSQL",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "sqldevm77kkznmognla.database.windows.net",
+			"database": "sqldbFinance",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SystemAssignedManagedIdentity"
+		}
+	}
+}
