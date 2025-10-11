@@ -1,0 +1,11 @@
+{
+	"name": "StagingRawContainer",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"serviceEndpoint": "https://stadevm77kkznmognla.blob.core.windows.net/",
+			"accountKind": "StorageV2"
+		}
+	}
+}
