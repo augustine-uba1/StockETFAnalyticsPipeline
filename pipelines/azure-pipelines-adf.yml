@@ -1,0 +1,96 @@
+# File: pipelines/azure-pipelines-adf.yml
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - adf/adf_publish/**
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - adf/adf_publish/**
+
+pool:
+  vmImage: ubuntu-latest
+
+# ========= CONFIG =========
+variables:
+  azureSubscription: "ServiceConnectionDevProd"
+
+  # Resource groups
+  devRg: "dev-analytics-finance"
+  prodRg: "prod-analytics-finance"
+
+  # Data Factory names (from each environment)
+  devDataFactoryName: "adfdevm77kkznmognla"
+  prodDataFactoryName: "adfprodpob5am325bfto"
+
+  # Path to adf_publish artifacts
+  adfPublishPath: "$(System.DefaultWorkingDirectory)/adf/adf_publish"
+
+# ========= STAGES =========
+
+# --- MAIN: DEPLOY DEV ---
+stages:
+  - stage: Dev
+    displayName: "Deploy Data Factory - Dev"
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    jobs:
+      - job: Deploy_Dev
+        displayName: "Deploy ADF (Dev)"
+        steps:
+          - checkout: self
+
+          - task: AzureCLI@2
+            displayName: "az deployment group create (Dev)"
+            inputs:
+              azureSubscription: "$(azureSubscription)"
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -euo pipefail
+                echo "Deploying ADF publish template to DEV..."
+                az deployment group create \
+                  --name deploy-adf-dev-$(Build.BuildId) \
+                  --resource-group "$(devRg)" \
+                  --template-file "$(adfPublishPath)/ARMTemplateForFactory.json" \
+                  --parameters "$(adfPublishPath)/ARMTemplateParametersForFactory.json" \
+                  --parameters factoryName="$(devDataFactoryName)"
+                echo "✅ ADF Dev deployment completed."
+
+  # --- PROD: APPROVAL + DEPLOY ---
+  - stage: Prod
+    displayName: "Deploy Data Factory - Prod"
+    dependsOn: Dev
+    condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+      in(dependencies.Dev.result, 'Succeeded'))
+    jobs:
+      - deployment: Deploy_Prod
+        displayName: "Deploy ADF (Prod)"
+        environment: "prod-adf" # must exist in DevOps > Pipelines > Environments
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: "az deployment group create (Prod)"
+                  inputs:
+                    azureSubscription: "$(azureSubscription)"
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      set -euo pipefail
+                      echo "Deploying ADF publish template to PROD..."
+                      az deployment group create \
+                        --name deploy-adf-prod-$(Build.BuildId) \
+                        --resource-group "$(prodRg)" \
+                        --template-file "$(adfPublishPath)/ARMTemplateForFactory.json" \
+                        --parameters "$(adfPublishPath)/ARMTemplateParametersForFactory.json" \
+                        --parameters factoryName="$(prodDataFactoryName)"
+                      echo "✅ ADF Prod deployment completed."
