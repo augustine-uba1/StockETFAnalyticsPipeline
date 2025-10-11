@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"method": "GET",
-					"url": "https://keyvaultazure12550.vault.azure.net/secrets/alpha-vantage-api-token/33db193ee5ed4ee7a9e5e0fb79a30001",
+					"url": "https://keyvaultazure12550.vault.azure.net/secrets/alpha-vantage-api-token/33db193ee5ed4ee7a9e5e0fb79a30001?api-version=7.5",
 					"authentication": {
 						"type": "MSI",
 						"resource": "https://vault.azure.net/"
