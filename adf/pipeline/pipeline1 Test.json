@@ -1,6 +1,55 @@
 {
 	"name": "pipeline1 Test",
 	"properties": {
+		"activities": [
+			{
+				"name": "get_api_key",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://keyvaultazure12550.vault.azure.net/",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "get_api_key",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "api_key",
+					"value": ""
+				}
+			}
+		],
+		"variables": {
+			"api_key": {
+				"type": "String"
+			}
+		},
 		"folder": {
 			"name": "test folder"
 		},
