@@ -38,6 +38,7 @@ This repo contains an end‑to‑end starter for the Stock &amp; ETF Analytics P
 - Resource groups:
   - `dev-analytics-finance`
   - `prod-analytics-finance`
+  - you can run the following AZ command to create the resource group:`az deployment group create --name deploy-analytics-dev --resource-group dev-analytics-finance --template-file infra/arm/rgs.resources.json --parameters @infra/arm/rgs.resources.parameters.dev.json`
 - (Recommended) AAD groups:
   - `sql-admins-analytics-dev`
   - `sql-admins-analytics-prod`
@@ -118,6 +119,29 @@ Members of that group can log in with AAD and administer DBs on that server. In 
 ## Ticker List
 Set default tickers in `adf/pipelines/ingest_prices.json` parameter `tickers` (comma‑separated). Example: `AAPL,MSFT,NVDA,SPY,QQQ`.
 
+## 🧩 Azure Data Factory CI/CD
+
+This project uses the **`adf_publish`** deployment approach for Azure Data Factory (ADF).
+
+### How It Works
+- All ADF pipelines, datasets, and linked services are authored in **ADF Studio**.
+- When you click **Publish** in ADF Studio (Dev environment), Azure generates a deployable ARM template in: /adf/adf_publish/
+- The `adf_publish` folder contains:
+   - `ARMTemplateForFactory.json`
+   - `ARMTemplateParametersForFactory.json`
+- The CI/CD pipeline in `/pipelines/azure-pipelines-adf.yml` triggers automatically whenever changes occur in that folder.
+- It deploys the published ADF configuration to the target environment.
+
+### Why I am Using This Approach
+✅ Microsoft-recommended pattern for ADF CI/CD  
+✅ Automatically handles dependencies between datasets, linked services, and pipelines  
+✅ Environment parameters can be overridden in the pipeline  
+✅ No need to manually publish in each environment — only publish from Dev once  
+
+In summary: **Publish once from Dev → Pipeline deploys everywhere.**
+
+
 ## Next Steps
 - Add ETF holdings ingestion (e.g., SPY/QQQ holdings) into bronze -> silver -> gold.
 - Add Power BI pbix and CI for semantic model.
+
