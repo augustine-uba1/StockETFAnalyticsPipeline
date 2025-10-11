@@ -1,0 +1,13 @@
+{
+	"name": "alphaVantage",
+	"properties": {
+		"description": "alphavantage api endpoint",
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://www.alphavantage.co",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
