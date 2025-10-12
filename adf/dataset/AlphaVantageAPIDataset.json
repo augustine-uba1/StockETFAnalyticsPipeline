@@ -29,7 +29,7 @@
 		"annotations": [],
 		"type": "RestResource",
 		"typeProperties": {
-			"relativeUrl": "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=NVDA&outputsize=compact&datatype=json&apikey=HBC71ESX0I6INAGR"
+			"relativeUrl": ""
 		},
 		"schema": []
 	}
