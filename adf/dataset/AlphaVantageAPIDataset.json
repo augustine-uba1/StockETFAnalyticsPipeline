@@ -6,30 +6,20 @@
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"function": {
-				"type": "string",
-				"defaultValue": "TIME_SERIES_DAILY"
+			"apikey": {
+				"type": "string"
 			},
 			"symbol": {
-				"type": "string",
-				"defaultValue": "NVDA"
-			},
-			"outputsize": {
-				"type": "string",
-				"defaultValue": "compactcompact"
-			},
-			"datatype": {
-				"type": "string",
-				"defaultValue": "json"
-			},
-			"apikeyapikey": {
 				"type": "string"
 			}
 		},
 		"annotations": [],
 		"type": "RestResource",
 		"typeProperties": {
-			"relativeUrl": ""
+			"relativeUrl": {
+				"value": "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=dataset().symbol.value&outputsize=compact&datatype=json&apikey=dataset().apikeyapikey.value",
+				"type": "Expression"
+			}
 		},
 		"schema": []
 	}
