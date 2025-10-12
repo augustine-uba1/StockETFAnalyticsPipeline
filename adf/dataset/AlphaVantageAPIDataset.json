@@ -1,0 +1,36 @@
+{
+	"name": "AlphaVantageAPIDataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AlphaVantageAPIRestLS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"function": {
+				"type": "string",
+				"defaultValue": "TIME_SERIES_DAILY"
+			},
+			"symbol": {
+				"type": "string",
+				"defaultValue": "NVDA"
+			},
+			"outputsize": {
+				"type": "string",
+				"defaultValue": "compactcompact"
+			},
+			"datatype": {
+				"type": "string",
+				"defaultValue": "json"
+			},
+			"apikeyapikey": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=NVDA&outputsize=compact&datatype=json&apikey=HBC71ESX0I6INAGR"
+		},
+		"schema": []
+	}
+}
