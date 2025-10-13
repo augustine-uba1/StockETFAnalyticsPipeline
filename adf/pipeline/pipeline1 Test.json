@@ -24,7 +24,7 @@
 				}
 			},
 			{
-				"name": "Set variable1",
+				"name": "set_api_key",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
@@ -48,11 +48,11 @@
 				}
 			},
 			{
-				"name": "Copy data1",
+				"name": "copy API data",
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Set variable1",
+						"activity": "set_api_key",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -112,48 +112,13 @@
 				"outputs": [
 					{
 						"referenceName": "StagingRawContainerLS",
-						"type": "DatasetReference"
-					}
-				]
-			},
-			{
-				"name": "Copy data2",
-				"type": "Copy",
-				"dependsOn": [
-					{
-						"activity": "Copy data1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "JsonSource",
-						"storeSettings": {
-							"type": "AzureBlobStorageReadSettings",
-							"recursive": true,
-							"wildcardFolderPath": "stock_raw/20251013005107",
-							"enablePartitionDiscovery": false
-						},
-						"formatSettings": {
-							"type": "JsonReadSettings"
+						"type": "DatasetReference",
+						"parameters": {
+							"file_path": {
+								"value": "@variables('file_path')",
+								"type": "Expression"
+							}
 						}
-					},
-					"enableStaging": false
-				},
-				"inputs": [
-					{
-						"referenceName": "StagingRawContainerLS",
-						"type": "DatasetReference"
 					}
 				]
 			},
@@ -173,6 +138,37 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "copy API data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dataflow1",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
 			}
 		],
 		"variables": {
@@ -184,7 +180,8 @@
 				"defaultValue": "NVDA"
 			},
 			"file_path": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "stock_raw/20251013010517"
 			}
 		},
 		"folder": {
