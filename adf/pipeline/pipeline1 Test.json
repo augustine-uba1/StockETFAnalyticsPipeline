@@ -82,15 +82,6 @@
 							"supportRFC5988": "true"
 						}
 					},
-					"sink": {
-						"type": "JsonSink",
-						"storeSettings": {
-							"type": "AzureBlobStorageWriteSettings"
-						},
-						"formatSettings": {
-							"type": "JsonWriteSettings"
-						}
-					},
 					"enableStaging": false
 				},
 				"inputs": [
@@ -104,18 +95,6 @@
 							},
 							"symbol": {
 								"value": "@variables('symbol')",
-								"type": "Expression"
-							}
-						}
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "StagingRawContainerLS",
-						"type": "DatasetReference",
-						"parameters": {
-							"file_path": {
-								"value": "@variables('file_path')",
 								"type": "Expression"
 							}
 						}
