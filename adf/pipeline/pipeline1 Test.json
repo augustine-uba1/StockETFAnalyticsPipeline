@@ -106,7 +106,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "DelimitedText2",
+						"referenceName": "AlphaVantageAPIDatasetCSV",
 						"type": "DatasetReference",
 						"parameters": {
 							"symbol": {
@@ -122,7 +122,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "DelimitedText1",
+						"referenceName": "StagingRawContainerCSVLS",
 						"type": "DatasetReference",
 						"parameters": {
 							"file_path": {

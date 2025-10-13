@@ -1,5 +1,5 @@
 {
-	"name": "DelimitedText1",
+	"name": "StagingRawContainerCSVLS",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "StagingRawContainer",

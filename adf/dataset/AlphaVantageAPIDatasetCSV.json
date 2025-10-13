@@ -1,5 +1,5 @@
 {
-	"name": "DelimitedText2",
+	"name": "AlphaVantageAPIDatasetCSV",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "HttpServer1",
