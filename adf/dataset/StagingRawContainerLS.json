@@ -7,7 +7,8 @@
 		},
 		"parameters": {
 			"file_path": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "stock_raw/stock_raw/"
 			}
 		},
 		"annotations": [],
