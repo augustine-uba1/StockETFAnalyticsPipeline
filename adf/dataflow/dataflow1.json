@@ -13,21 +13,12 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [
-				{
-					"name": "unpivot1"
-				}
-			],
+			"transformations": [],
 			"scriptLines": [
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     documentForm: 'documentPerLine') ~> source1",
-				"source1 unpivot(output(",
-				"          ",
-				"     ),",
-				"     lateral: false,",
-				"     ignoreNullPivots: false) ~> unpivot1"
+				"     documentForm: 'documentPerLine') ~> source1"
 			]
 		}
 	}
