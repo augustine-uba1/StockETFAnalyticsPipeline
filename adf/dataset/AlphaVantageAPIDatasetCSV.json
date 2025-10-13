@@ -2,7 +2,7 @@
 	"name": "AlphaVantageAPIDatasetCSV",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "HttpServer1",
+			"referenceName": "AlphaVantageAPIHTTP",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
