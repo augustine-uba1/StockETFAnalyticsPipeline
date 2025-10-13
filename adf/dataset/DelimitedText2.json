@@ -1,0 +1,33 @@
+{
+	"name": "DelimitedText2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "HttpServer1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"symbol": {
+				"type": "string"
+			},
+			"apikey": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@concat(\n  '/query?function=TIME_SERIES_DAILY',\n  '&symbol=', encodeUriComponent(dataset().symbol),\n  '&outputsize=compact',\n  '&datatype=csv',\n  '&apikey=', dataset().apikey\n)",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
