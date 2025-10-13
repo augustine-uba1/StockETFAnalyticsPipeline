@@ -1,0 +1,23 @@
+{
+	"name": "StagingRawContainerLS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "StagingRawContainer",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "alpha_vantage.json",
+				"folderPath": {
+					"value": "@concat('stock_raw/', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+					"type": "Expression"
+				},
+				"container": "raw-alpha-vantage"
+			}
+		},
+		"schema": {}
+	}
+}

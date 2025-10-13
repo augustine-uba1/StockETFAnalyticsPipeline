@@ -17,7 +17,7 @@
 		"type": "RestResource",
 		"typeProperties": {
 			"relativeUrl": {
-				"value": "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=dataset().symbol.value&outputsize=compact&datatype=json&apikey=dataset().apikeyapikey.value",
+				"value": "@concat(\n  '/query?function=TIME_SERIES_DAILY',\n  '&symbol=', encodeUriComponent(dataset().symbol),\n  '&outputsize=compact',\n  '&datatype=json',\n  '&apikey=', dataset().apikey\n)",
 				"type": "Expression"
 			}
 		},

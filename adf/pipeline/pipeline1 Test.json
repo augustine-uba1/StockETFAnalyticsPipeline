@@ -76,6 +76,15 @@
 							"supportRFC5988": "true"
 						}
 					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
 					"enableStaging": false
 				},
 				"inputs": [
@@ -83,44 +92,32 @@
 						"referenceName": "AlphaVantageAPIDataset",
 						"type": "DatasetReference",
 						"parameters": {
-							"outputsize": "compactcompact"
+							"apikey": {
+								"value": "@variables('api_key')",
+								"type": "Expression"
+							},
+							"symbol": {
+								"value": "@variables('symbol')",
+								"type": "Expression"
+							}
 						}
 					}
+				],
+				"outputs": [
+					{
+						"referenceName": "StagingRawContainerLS",
+						"type": "DatasetReference"
+					}
 				]
-			},
-			{
-				"name": "Web1",
-				"type": "WebActivity",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"method": "GET",
-					"linkedServices": [
-						{
-							"referenceName": "AlphaVantageAPIRestLS",
-							"type": "LinkedServiceReference"
-						}
-					],
-					"datasets": [
-						{
-							"referenceName": "AlphaVantageAPIDataset",
-							"type": "DatasetReference"
-						}
-					],
-					"url": "https://www.alphavantage.co"
-				}
 			}
 		],
 		"variables": {
 			"api_key": {
 				"type": "String"
+			},
+			"symbol": {
+				"type": "String",
+				"defaultValue": "NVDA"
 			}
 		},
 		"folder": {
