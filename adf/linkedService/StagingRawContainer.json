@@ -1,0 +1,10 @@
+{
+	"name": "StagingRawContainer",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://stadevm77kkznmognla.dfs.core.windows.net/"
+		}
+	}
+}
