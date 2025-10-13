@@ -82,6 +82,17 @@
 							"supportRFC5988": "true"
 						}
 					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "FlattenHierarchy"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings",
+							"filePattern": "arrayOfObjects"
+						}
+					},
 					"enableStaging": false
 				},
 				"inputs": [
@@ -95,6 +106,18 @@
 							},
 							"symbol": {
 								"value": "@variables('symbol')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "StagingRawContainerLS",
+						"type": "DatasetReference",
+						"parameters": {
+							"file_path": {
+								"value": "@variables('file_path')",
 								"type": "Expression"
 							}
 						}
@@ -116,37 +139,6 @@
 						"value": "@concat('stock_raw/', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
 						"type": "Expression"
 					}
-				}
-			},
-			{
-				"name": "Data flow1",
-				"type": "ExecuteDataFlow",
-				"dependsOn": [
-					{
-						"activity": "copy API data",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"dataflow": {
-						"referenceName": "dataflow1",
-						"type": "DataFlowReference"
-					},
-					"compute": {
-						"coreCount": 8,
-						"computeType": "General"
-					},
-					"traceLevel": "Fine"
 				}
 			}
 		],

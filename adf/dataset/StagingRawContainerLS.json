@@ -15,7 +15,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "alpha_vantage.json",
+				"fileName": "alpha_vantage.csv",
 				"folderPath": {
 					"value": "@dataset().file_path",
 					"type": "Expression"

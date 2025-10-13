@@ -17,7 +17,7 @@
 		"type": "RestResource",
 		"typeProperties": {
 			"relativeUrl": {
-				"value": "@concat(\n  '/query?function=TIME_SERIES_DAILY',\n  '&symbol=', encodeUriComponent(dataset().symbol),\n  '&outputsize=compact',\n  '&datatype=json',\n  '&apikey=', dataset().apikey\n)",
+				"value": "@concat(\n  '/query?function=TIME_SERIES_DAILY',\n  '&symbol=', encodeUriComponent(dataset().symbol),\n  '&outputsize=compact',\n  '&datatype=csv',\n  '&apikey=', dataset().apikey\n)",
 				"type": "Expression"
 			}
 		},
