@@ -5,6 +5,11 @@
 			"referenceName": "StagingRawContainer",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"file_path": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {
@@ -12,7 +17,7 @@
 				"type": "AzureBlobStorageLocation",
 				"fileName": "alpha_vantage.json",
 				"folderPath": {
-					"value": "@concat('stock_raw/', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+					"value": "@dataset().file_path",
 					"type": "Expression"
 				},
 				"container": "raw-alpha-vantage"
