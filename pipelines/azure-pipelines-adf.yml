@@ -30,6 +30,14 @@ variables:
   devDataFactoryName: "adfdevm77kkznmognla"
   prodDataFactoryName: "adfprodpob5am325bfto"
 
+  # SQL Server names (override linked service)
+  devSqlServer: "sqldevm77kkznmognla.database.windows.net"
+  prodSqlServer: "sqlprodpob5am325bfto.database.windows.net"
+
+  # Storage URLs (override linked service)
+  devRawContainerUrl: "https://stadevm77kkznmognla.dfs.core.windows.net/"
+  prodRawContainerUrl: "https://staprodpob5am325bfto.dfs.core.windows.net/"
+
   # Path to published ARM templates
   adfPublishPath: "$(System.DefaultWorkingDirectory)/adfdevm77kkznmognla"
 
@@ -56,7 +64,10 @@ stages:
                   --resource-group "$(devRg)" \
                   --template-file "$(adfPublishPath)/ARMTemplateForFactory.json" \
                   --parameters "$(adfPublishPath)/ARMTemplateParametersForFactory.json" \
-                  --parameters factoryName="$(devDataFactoryName)"
+                  --parameters \
+                      factoryName="$(devDataFactoryName)" \
+                      StagingDatabase_properties_typeProperties_server="$(devSqlServer)" \
+                      StagingRawContainer_properties_typeProperties_url="$(devRawContainerUrl)"
                 echo "✅ ADF Dev deployment completed."
 
   - stage: Prod
@@ -87,5 +98,8 @@ stages:
                         --resource-group "$(prodRg)" \
                         --template-file "$(adfPublishPath)/ARMTemplateForFactory.json" \
                         --parameters "$(adfPublishPath)/ARMTemplateParametersForFactory.json" \
-                        --parameters factoryName="$(prodDataFactoryName)"
+                        --parameters \
+                            factoryName="$(prodDataFactoryName)" \
+                            StagingDatabase_properties_typeProperties_server="$(prodSqlServer)" \
+                            StagingRawContainer_properties_typeProperties_url="$(prodRawContainerUrl)"
                       echo "✅ ADF Prod deployment completed."
