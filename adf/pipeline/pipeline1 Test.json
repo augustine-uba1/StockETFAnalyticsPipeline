@@ -173,6 +173,20 @@
 					"dataflow": {
 						"referenceName": "csvToSQLFlow",
 						"type": "DataFlowReference",
+						"parameters": {
+							"file_path": {
+								"value": "'@{variables('file_path')}'",
+								"type": "Expression"
+							},
+							"symbol": {
+								"value": "'@{variables('symbol')}'",
+								"type": "Expression"
+							},
+							"source": {
+								"value": "'@{variables('source')}'",
+								"type": "Expression"
+							}
+						},
 						"datasetParameters": {
 							"AlphaVantageCSV": {
 								"file_path": {
