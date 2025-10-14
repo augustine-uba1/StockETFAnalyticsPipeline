@@ -1,4 +1,9 @@
 {
 	"name": "adfdevm77kkznmognla",
-	"location": "uksouth"
+	"location": "uksouth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "4a356de2-2cec-45da-b2a6-5cd48132e17a",
+		"tenantId": "19e6cd8e-58ff-4aaa-a13f-e176857d78b2"
+	}
 }

@@ -1,5 +1,5 @@
 {
-	"name": "csvToSQLFlow",
+	"name": "csvAPIToSQLFlow",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
