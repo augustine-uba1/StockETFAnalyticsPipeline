@@ -149,6 +149,45 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "Stage to SQL Server",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "copy API data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "csvToSQLFlow",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"AlphaVantageCSV": {
+								"file_path": {
+									"value": "@variables('file_path')",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
 			}
 		],
 		"variables": {
@@ -162,6 +201,10 @@
 			"file_path": {
 				"type": "String",
 				"defaultValue": "stock_raw/20251013010517"
+			},
+			"source": {
+				"type": "String",
+				"defaultValue": "Alpha Vantage"
 			}
 		},
 		"folder": {

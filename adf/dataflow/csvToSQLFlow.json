@@ -1,0 +1,83 @@
+{
+	"name": "csvToSQLFlow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "StagingRawContainerCSVLS",
+						"type": "DatasetReference"
+					},
+					"name": "AlphaVantageCSV"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "StagingDatabaseServer",
+						"type": "DatasetReference"
+					},
+					"name": "databaseSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "sourceDerived"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     file_path as string,",
+				"     symbol as string,",
+				"     source as string",
+				"}",
+				"source(output(",
+				"          timestamp as date,",
+				"          open as double,",
+				"          high as double,",
+				"          low as double,",
+				"          close as double,",
+				"          volume as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> AlphaVantageCSV",
+				"AlphaVantageCSV derive(source = $source,",
+				"          symbol = $symbol) ~> sourceDerived",
+				"sourceDerived sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          load_id as string,",
+				"          load_ts_utc as timestamp,",
+				"          source_system as string,",
+				"          symbol as string,",
+				"          price_date as date,",
+				"          open_price as decimal(18,6),",
+				"          high_price as decimal(18,6),",
+				"          low_price as decimal(18,6),",
+				"          close_price as decimal(18,6),",
+				"          volume as long",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          symbol,",
+				"          price_date = timestamp,",
+				"          open_price = open,",
+				"          high_price = high,",
+				"          low_price = low,",
+				"          close_price = close,",
+				"          volume,",
+				"          source_system = source",
+				"     )) ~> databaseSink"
+			]
+		}
+	}
+}
