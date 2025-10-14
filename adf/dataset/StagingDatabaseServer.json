@@ -1,0 +1,67 @@
+{
+	"name": "StagingDatabaseServer",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "StagingDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "load_id",
+				"type": "uniqueidentifier"
+			},
+			{
+				"name": "load_ts_utc",
+				"type": "datetime2",
+				"scale": 0
+			},
+			{
+				"name": "source_system",
+				"type": "varchar"
+			},
+			{
+				"name": "symbol",
+				"type": "varchar"
+			},
+			{
+				"name": "price_date",
+				"type": "date"
+			},
+			{
+				"name": "open_price",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 6
+			},
+			{
+				"name": "high_price",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 6
+			},
+			{
+				"name": "low_price",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 6
+			},
+			{
+				"name": "close_price",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 6
+			},
+			{
+				"name": "volume",
+				"type": "bigint",
+				"precision": 19
+			}
+		],
+		"typeProperties": {
+			"schema": "stg",
+			"table": "prices_raw"
+		}
+	}
+}
