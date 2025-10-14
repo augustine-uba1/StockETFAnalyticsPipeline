@@ -140,6 +140,23 @@ This project uses the **`adf_publish`** deployment approach for Azure Data Facto
 
 In summary: **Publish once from Dev → Pipeline deploys everywhere.**
 
+## Azure SQL Linked Service
+- This example makes use of ADF system assigned managed identity
+- Confirm the system assigned managed identity is turned on for both ADF resource
+- run the following script once in each of the databases, using respective adf system assigned name
+
+`CREATE USER [<< replace with adf managed identity name>>] FROM EXTERNAL PROVIDER;`
+
+`-- Least-privilege grants for writing Alpha Vantage data to a staging schema (e.g., stg)`
+` Adjust schema/table names as needed`
+
+`GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::stg TO [<< replace with adf managed identity name>>];`
+
+## Azure Storage Container Linked SErvice
+Similar to the SQL Linked service, the sustem assigned managed identity is used for respective enviroments connection to the blob storage.
+
+**NOTE** you may implement a different approach to authenticate when creating the linked service.
+
 
 ## Next Steps
 - Add ETF holdings ingestion (e.g., SPY/QQQ holdings) into bronze -> silver -> gold.

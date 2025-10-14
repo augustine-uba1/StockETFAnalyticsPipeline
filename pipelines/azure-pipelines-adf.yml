@@ -1,11 +1,12 @@
 # File: pipelines/azure-pipelines-adf.yml
+
 trigger:
   branches:
     include:
       - main
   paths:
     include:
-      - adf/adf_publish/**
+      - adfdevm77kkznmognla/**
 
 pr:
   branches:
@@ -13,12 +14,11 @@ pr:
       - main
   paths:
     include:
-      - adf/adf_publish/**
+      - adfdevm77kkznmognla/**
 
 pool:
   vmImage: ubuntu-latest
 
-# ========= CONFIG =========
 variables:
   azureSubscription: "ServiceConnectionDevProd"
 
@@ -30,12 +30,9 @@ variables:
   devDataFactoryName: "adfdevm77kkznmognla"
   prodDataFactoryName: "adfprodpob5am325bfto"
 
-  # Path to adf_publish artifacts
-  adfPublishPath: "$(System.DefaultWorkingDirectory)/adf/adf_publish"
+  # Path to published ARM templates
+  adfPublishPath: "$(System.DefaultWorkingDirectory)/adfdevm77kkznmognla"
 
-# ========= STAGES =========
-
-# --- MAIN: DEPLOY DEV ---
 stages:
   - stage: Dev
     displayName: "Deploy Data Factory - Dev"
@@ -45,7 +42,6 @@ stages:
         displayName: "Deploy ADF (Dev)"
         steps:
           - checkout: self
-
           - task: AzureCLI@2
             displayName: "az deployment group create (Dev)"
             inputs:
@@ -63,7 +59,6 @@ stages:
                   --parameters factoryName="$(devDataFactoryName)"
                 echo "✅ ADF Dev deployment completed."
 
-  # --- PROD: APPROVAL + DEPLOY ---
   - stage: Prod
     displayName: "Deploy Data Factory - Prod"
     dependsOn: Dev
@@ -72,7 +67,7 @@ stages:
     jobs:
       - deployment: Deploy_Prod
         displayName: "Deploy ADF (Prod)"
-        environment: "prod-adf" # must exist in DevOps > Pipelines > Environments
+        environment: "prod-adf"
         strategy:
           runOnce:
             deploy:
