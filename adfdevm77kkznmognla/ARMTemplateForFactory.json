@@ -212,7 +212,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "csvToSQLFlow",
+								"referenceName": "csvAPIToSQLFlow",
 								"type": "DataFlowReference",
 								"parameters": {
 									"file_path": {
@@ -270,12 +270,13 @@
 				"folder": {
 					"name": "test folder"
 				},
-				"annotations": []
+				"annotations": [],
+				"lastPublishTime": "2025-10-14T21:43:25Z"
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AlphaVantageAPIDatasetCSV')]",
 				"[concat(variables('factoryId'), '/datasets/StagingRawContainerCSVLS')]",
-				"[concat(variables('factoryId'), '/dataflows/csvToSQLFlow')]"
+				"[concat(variables('factoryId'), '/dataflows/csvAPIToSQLFlow')]"
 			]
 		},
 		{
@@ -563,7 +564,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/csvToSQLFlow')]",
+			"name": "[concat(parameters('factoryName'), '/csvAPIToSQLFlow')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
