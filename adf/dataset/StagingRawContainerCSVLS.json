@@ -16,7 +16,10 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "alpha_vantage.csv",
-				"folderPath": "@dataset().file_path",
+				"folderPath": {
+					"value": "@dataset().file_path",
+					"type": "Expression"
+				},
 				"fileSystem": "raw-alpha-vantage"
 			},
 			"columnDelimiter": ",",
@@ -25,5 +28,6 @@
 			"quoteChar": "\""
 		},
 		"schema": []
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
 }

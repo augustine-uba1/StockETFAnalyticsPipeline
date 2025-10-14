@@ -63,5 +63,6 @@
 			"schema": "stg",
 			"table": "prices_raw"
 		}
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
 }
