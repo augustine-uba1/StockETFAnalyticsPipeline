@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adfdevm77kkznmognla"
+		},
+		"AlphaVantageAPIHTTP_properties_typeProperties_url": {
+			"value": "https://www.alphavantage.co"
+		},
+		"AlphaVantageAPIRestLS_properties_typeProperties_url": {
+			"value": "https://www.alphavantage.co"
+		},
+		"KeyVault_properties_typeProperties_baseUrl": {
+			"value": "https://keyvaultAzure12550.vault.azure.net/"
+		},
+		"StagingDatabase_properties_typeProperties_server": {
+			"value": "sqldevm77kkznmognla.database.windows.net"
+		},
+		"StagingDatabase_properties_typeProperties_database": {
+			"value": "sqldbFinance"
+		},
+		"StagingRawContainer_properties_typeProperties_url": {
+			"value": "https://stadevm77kkznmognla.dfs.core.windows.net/"
+		}
+	}
+}
