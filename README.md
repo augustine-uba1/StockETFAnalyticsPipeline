@@ -162,3 +162,11 @@ Similar to the SQL Linked service, the sustem assigned managed identity is used 
 - Add ETF holdings ingestion (e.g., SPY/QQQ holdings) into bronze -> silver -> gold.
 - Add Power BI pbix and CI for semantic model.
 
+## this project will be making use of DAB (databricks asset bundles)
+You will need to install [unity catalog](https://learn.microsoft.com/en-us/azure/databricks/data-governance/unity-catalog/enable-workspaces)
+
+## Known Issues and Helpful Links
+- [Databricks Authentication Issue](https://www.youtube.com/watch?v=pxmJooGBOyI) Error(Selected user account does not exist in tenant 'Microsoft Services' and cannot access the application 'xxxxxx-xxxx-xxxx-xxxx-xxxxxx' in that tenant. The account needs to be added as an external user in the tenant first. Please use a different account.) This issue occure when trying to access databricks account settings.
+
+## Create Storage Credential Used for External Location
+[storage credential](https://learn.microsoft.com/en-us/azure/databricks/sql/language-manual/sql-ref-storage-credentials)

@@ -1,0 +1,5 @@
+# Ignore Python virtual environment
+venv/
+databricks auth login --host https://adb-512579183162692.12.azuredatabricks.net
+databricks auth token --host https://adb-512579183162692.12.azuredatabricks.net
+databricks auth token -p https://adb-512579183162692.12.azuredatabricks.net
