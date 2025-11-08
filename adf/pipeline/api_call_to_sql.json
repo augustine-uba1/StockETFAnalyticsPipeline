@@ -1,0 +1,231 @@
+{
+	"name": "api_call_to_sql",
+	"properties": {
+		"activities": [
+			{
+				"name": "get_api_key",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://keyvaultazure12550.vault.azure.net/secrets/alpha-vantage-api-token/33db193ee5ed4ee7a9e5e0fb79a30001?api-version=7.5",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net/"
+					}
+				}
+			},
+			{
+				"name": "set_api_key",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "get_api_key",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "api_key",
+					"value": {
+						"value": "@activity('get_api_key').output.value",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "copy API data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "set_api_key",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "set_file_path",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AlphaVantageAPIDatasetCSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"symbol": {
+								"value": "@variables('symbol')",
+								"type": "Expression"
+							},
+							"apikey": {
+								"value": "@variables('api_key')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "StagingRawContainerCSVLS",
+						"type": "DatasetReference",
+						"parameters": {
+							"file_path": {
+								"value": "@variables('file_path')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "set_file_path",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "file_path",
+					"value": {
+						"value": "@concat('stock_raw/', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Stage to SQL Server",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "copy API data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "csvAPIToSQLFlow",
+						"type": "DataFlowReference",
+						"parameters": {
+							"file_path": {
+								"value": "'@{variables('file_path')}'",
+								"type": "Expression"
+							},
+							"symbol": {
+								"value": "'@{variables('symbol')}'",
+								"type": "Expression"
+							},
+							"source": {
+								"value": "'@{variables('source')}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"AlphaVantageCSV": {
+								"file_path": {
+									"value": "@variables('file_path')",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"variables": {
+			"api_key": {
+				"type": "String"
+			},
+			"symbol": {
+				"type": "String",
+				"defaultValue": "NVDA"
+			},
+			"file_path": {
+				"type": "String",
+				"defaultValue": "stock_raw/20251013010517"
+			},
+			"source": {
+				"type": "String",
+				"defaultValue": "Alpha Vantage"
+			}
+		},
+		"folder": {
+			"name": "api_main"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-11-08T09:35:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
