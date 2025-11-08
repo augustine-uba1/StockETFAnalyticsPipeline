@@ -1,0 +1,23 @@
+{
+	"name": "SqlToParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "StagingRawContainer",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat('stock_raw/', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+					"type": "Expression"
+				},
+				"fileSystem": "raw-stock-data"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
