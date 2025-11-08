@@ -1,0 +1,25 @@
+{
+	"name": "SqlToParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "StagingRawContainer",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat('stock_raw/', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+					"type": "Expression"
+				},
+				"folderPath": "raw",
+				"fileSystem": "dev-databricks-delta"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1 Test",
+	"name": "api_call_to_sql",
 	"properties": {
 		"activities": [
 			{
@@ -222,10 +222,10 @@
 			}
 		},
 		"folder": {
-			"name": "test folder"
+			"name": "api_main"
 		},
 		"annotations": [],
-		"lastPublishTime": "2025-10-14T21:43:25Z"
+		"lastPublishTime": "2025-11-08T09:35:35Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

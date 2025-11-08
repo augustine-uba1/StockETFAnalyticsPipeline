@@ -37,7 +37,7 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1 Test')]",
+			"name": "[concat(parameters('factoryName'), '/api_call_to_sql')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -268,15 +268,88 @@
 					}
 				},
 				"folder": {
-					"name": "test folder"
+					"name": "api_main"
 				},
 				"annotations": [],
-				"lastPublishTime": "2025-10-14T21:43:25Z"
+				"lastPublishTime": "2025-11-08T09:35:35Z"
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AlphaVantageAPIDatasetCSV')]",
 				"[concat(variables('factoryId'), '/datasets/StagingRawContainerCSVLS')]",
 				"[concat(variables('factoryId'), '/dataflows/csvAPIToSQLFlow')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sql_to_parquet')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyDataFromSQL",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "StagingDatabaseServer",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SqlToParquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "engineering_pipelines"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-11-08T09:35:36Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/StagingDatabaseServer')]",
+				"[concat(variables('factoryId'), '/datasets/SqlToParquet')]"
 			]
 		},
 		{
@@ -346,6 +419,35 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AlphaVantageAPIHTTP')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlToParquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "StagingRawContainer",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat('stock_raw/', formatDateTime(utcNow(),'yyyyMMddHHmmss'))",
+							"type": "Expression"
+						},
+						"folderPath": "raw",
+						"fileSystem": "dev-databricks-delta"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/StagingRawContainer')]"
 			]
 		},
 		{
