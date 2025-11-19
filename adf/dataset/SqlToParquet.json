@@ -14,8 +14,7 @@
 					"value": "@concat('stock_raw/', formatDateTime(utcNow(),'yyyyMMddHHmmss'), 'parquet')",
 					"type": "Expression"
 				},
-				"folderPath": "stock_raw",
-				"fileSystem": "raw-stock-date"
+				"fileSystem": "raw-stock-data"
 			},
 			"compressionCodec": "snappy"
 		},
