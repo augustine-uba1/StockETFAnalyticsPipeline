@@ -14,8 +14,8 @@
 					"value": "@concat('stock_raw/', formatDateTime(utcNow(),'yyyyMMddHHmmss'), 'parquet')",
 					"type": "Expression"
 				},
-				"folderPath": "raw",
-				"fileSystem": "dev-databricks-delta"
+				"folderPath": "stock_raw",
+				"fileSystem": "raw-stock-date"
 			},
 			"compressionCodec": "snappy"
 		},
