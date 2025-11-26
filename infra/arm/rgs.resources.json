@@ -14,7 +14,7 @@
     "aadAdminObjectId": { "type": "string" }, // group objectId GUID
     "aadTenantId": { "type": "secureString" }, // your tenant GUID
 
-    /* --- SQL DB compute & backup knobs (defaults match your screenshot) --- */
+    /* --- SQL DB compute & backup knobs --- */
     "computeTier": { "type": "string", "defaultValue": "GeneralPurpose" },
     "computeFamily": { "type": "string", "defaultValue": "Gen5" },
     "maxVcores": { "type": "int", "defaultValue": 2 },
