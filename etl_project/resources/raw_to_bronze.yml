@@ -18,7 +18,7 @@ resources:
       tasks:
         - task_key: ingest_alpha_vantage_daily_stock_data_to_bronze
           description: "Ingest Alpha Vantage daily prices from external storage -> raw -> bronze"
-          existing_cluster_id: null
+          # existing_cluster_id: null
           # new_cluster:
           #   spark_version: 15.4.x-scala2.12
           #   node_type_id: Standard_DS3_v2
