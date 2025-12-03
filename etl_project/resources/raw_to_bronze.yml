@@ -27,7 +27,7 @@ resources:
             notebook_path: ../src/raw_to_bronze.ipynb
             base_parameters:
               # These map to your dbutils.widgets
-              catalog_name: "dev_raw"
+              catalog_name: "dev-raw"
               schema_name: "stock"
               table_name: "daily_prices"
               external_location: "dev_raw_stock_layer"
