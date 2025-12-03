@@ -30,9 +30,9 @@ steps:
       versionSpec: "3.x"
 
   - script: |
-      python -m pip install --upgrade pip
-      pip install "databricks-cli>=0.205.0"
-    displayName: "Install Databricks CLI"
+      curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+      databricks version
+    displayName: "Install Databricks CLI (new)"
 
   # Optional sanity check
   - script: |
