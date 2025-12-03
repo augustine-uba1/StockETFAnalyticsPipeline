@@ -1,0 +1,71 @@
+# pipelines/azure-pipelines-dab.yml
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - etl_project/**
+      - pipelines/azure-pipelines-dab.yml
+
+pr:
+  branches: { include: ["*"] }
+  paths: { include: ["etl_project/**", "pipelines/**"] }
+
+pool:
+  vmImage: ubuntu-latest
+
+# These should come from a Variable Group / pipeline variables
+variables:
+- group: databricks-dev
+- name: DAB_TARGET
+  value: dev
+
+steps:
+  - checkout: self
+
+  - task: UsePythonVersion@0
+    displayName: "Use Python 3.x"
+    inputs:
+      versionSpec: "3.x"
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install "databricks-cli>=0.205.0"
+    displayName: "Install Databricks CLI"
+
+  # Optional sanity check
+  - script: |
+      echo "Databricks host: $DATABRICKS_HOST"
+      databricks --version
+    displayName: "Check Databricks CLI"
+    env:
+      DATABRICKS_HOST: $(DATABRICKS_HOST)
+      DATABRICKS_TOKEN: $(DATABRICKS_TOKEN)
+
+  # Validate the bundle inside etl_project
+  - script: |
+      cd etl_project
+      databricks bundle validate -t $(DAB_TARGET)
+    displayName: "Validate Databricks bundle (etl_project)"
+    env:
+      DATABRICKS_HOST: $(DATABRICKS_HOST)
+      DATABRICKS_TOKEN: $(DATABRICKS_TOKEN)
+
+  # Deploy the bundle (creates/updates job in the workspace)
+  - script: |
+      cd etl_project
+      databricks bundle deploy -t $(DAB_TARGET)
+    displayName: "Deploy Databricks bundle (etl_project)"
+    env:
+      DATABRICKS_HOST: $(DATABRICKS_HOST)
+      DATABRICKS_TOKEN: $(DATABRICKS_TOKEN)
+
+  # Run your job as part of the deployment
+  - script: |
+      cd etl_project
+      databricks bundle run stock_external_raw_bronze_job -t $(DAB_TARGET)
+    displayName: "Run stock_external_raw_bronze_job after deploy"
+    env:
+      DATABRICKS_HOST: $(DATABRICKS_HOST)
+      DATABRICKS_TOKEN: $(DATABRICKS_TOKEN)
