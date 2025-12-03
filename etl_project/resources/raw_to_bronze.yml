@@ -1,0 +1,38 @@
+# The main job for etl_project.
+resources:
+  jobs:
+    ccc:
+      name: stock_external_raw_bronze_job
+      # Simple job with one task calling our raw_to_bronze notebook
+
+      trigger:
+        # Run this job every day, exactly one day from the last run; see https://docs.databricks.com/api/workspace/jobs/create#trigger
+        periodic:
+          interval: 1
+          unit: DAYS
+
+      email_notifications:
+       on_failure:
+         - augustine_ubanzemeka@yahoo.com
+
+      tasks:
+        - task_key: ingest_alpha_vantage_daily_stock_data_to_bronze
+          description: "Ingest Alpha Vantage daily prices from external storage -> raw -> bronze"
+          # existing_cluster_id: null
+          # new_cluster:
+          #   spark_version: 15.4.x-scala2.12
+          #   node_type_id: Standard_DS3_v2
+          #   num_workers: 1
+          notebook_task:
+            notebook_path: ../src/raw_to_bronze.ipynb
+            base_parameters:
+              # These map to your dbutils.widgets
+              catalog_name: "dev-raw"
+              schema_name: "stock"
+              table_name: "daily_prices"
+              external_location: "dev_raw_stock_layer"
+          libraries: []
+          timeout_seconds: 3600
+          max_retries: 1
+          min_retry_interval_millis: 30000
+          retry_on_timeout: false
