@@ -1,7 +1,7 @@
 # The main job for etl_project.
 resources:
   jobs:
-    ccc:
+    stock_external_raw_bronze_job:
       name: stock_external_raw_bronze_job
       # Simple job with one task calling our raw_to_bronze notebook
 
